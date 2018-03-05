@@ -1,0 +1,31 @@
+{
+  "name": "pulsarcast-test-harness",
+  "version": "0.1.0",
+  "description": "Test harness for PulsarCast",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JGAntunes/pulsarcast-test-harness.git"
+  },
+  "keywords": [
+    "p2p",
+    "pub-sub",
+    "pulsarcast"
+  ],
+  "author": "João Antunes (@jgantunes)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JGAntunes/pulsarcast-test-harness/issues"
+  },
+  "homepage": "https://github.com/JGAntunes/pulsarcast-test-harness#readme",
+  "dependencies": {
+    "containernet": "^0.1.0"
+  },
+  "devDependencies": {
+    "snazzy": "^7.1.1",
+    "standard": "^11.0.0"
+  }
+}
