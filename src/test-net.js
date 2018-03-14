@@ -1,15 +1,9 @@
 'use strict'
 
+const eachLimit = require('async/eachLimit')
 const containernet = require('containernet')
 
-// const cn = containernet({debug: true})
 const cn = containernet()
-
-// const s1 = cn.createSwitch()
-// const d1 = cn.createHost({image: 'js-ipfs:latest', cmd: ''})
-// const d2 = cn.createHost({image: 'js-ipfs:latest', cmd: ''})
-// const hosts = []
-// const switches = []
 
 class TestNet {
   constructor ({hostConfig = {}, hostNumber, switchesNumber} = {}) {
@@ -22,8 +16,6 @@ class TestNet {
   }
 
   bootstrapNetwork (links) {
-    console.log(this)
-    debugger
     for (let i = this.hosts.length; i < this.hostNumber; i++) {
       this.createHost()
     }
@@ -52,7 +44,11 @@ class TestNet {
   }
 
   start (cb) {
-    cn.start(cb)
+    cn.start((err) => {
+      if (err) throw err
+      eachLimit(this.hosts, 15, getHostId, cb)
+      console.log('Test net running')
+    })
   }
 
   getNode (id) {
@@ -65,6 +61,19 @@ class TestNet {
     }
     return null
   }
+}
+
+function getHostId (host, done) {
+  host.exec('jsipfs id', (err, result) => {
+    if (err) return done(err)
+    try {
+      host.ipfsConfig = JSON.parse(result)
+    } catch (e) {
+      return done(e)
+    }
+    console.log(`Running node with id ${host.ipfsConfig.id}`)
+    done()
+  })
 }
 
 module.exports = TestNet

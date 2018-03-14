@@ -32,4 +32,8 @@ testNet.bootstrapNetwork({
   ]
 })
 
-testNet.start(() => console.log('Test net running'))
+testNet.start(() => {
+  console.log('Bootstrap finished')
+  testNet.getNode('d1').exec(`jsipfs ping ${testNet.getNode('d2').ipfsConfig.id}`, (err, result) => console.log(result))
+  // testNet.getNode('d1').exec('jsipfs id', (err, result) => console.log(result))
+})
