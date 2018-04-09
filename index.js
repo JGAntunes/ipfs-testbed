@@ -7,7 +7,7 @@ const testNet = new TestNet({
     image: 'jgantunes/js-ipfs:latest',
     cmd: './init-and-daemon.sh'
   },
-  hostNumber: 6,
+  hostNumber: 3,
   switchesNumber: 3
 })
 
@@ -16,24 +16,22 @@ testNet.bootstrapNetwork({
     's2',
     's3',
     'd1',
-    'd2'
   ],
   s2: [
     's1',
     's3',
-    'd3',
-    'd4'
+    'd2',
   ],
   s3: [
     's2',
     's1',
-    'd5',
-    'd6'
+    'd3',
   ]
 })
 
-testNet.start(() => {
+testNet.start((err) => {
+  if (err) throw err
   console.log('Bootstrap finished')
   testNet.getNode('d1').exec(`jsipfs ping ${testNet.getNode('d2').ipfsConfig.id}`, (err, result) => console.log(result))
-  // testNet.getNode('d1').exec('jsipfs id', (err, result) => console.log(result))
+  testNet.getNode('d1').exec('jsipfs id', (err, result) => console.log(result))
 })

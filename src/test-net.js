@@ -5,6 +5,8 @@ const containernet = require('containernet')
 
 const cn = containernet()
 
+const log = console
+
 class TestNet {
   constructor ({hostConfig = {}, hostNumber, switchesNumber} = {}) {
     this.switches = []
@@ -47,7 +49,7 @@ class TestNet {
     cn.start((err) => {
       if (err) throw err
       eachLimit(this.hosts, 15, getHostId, cb)
-      console.log('Test net running')
+      log.info('Test net running')
     })
   }
 
@@ -69,9 +71,10 @@ function getHostId (host, done) {
     try {
       host.ipfsConfig = JSON.parse(result)
     } catch (e) {
-      return done(e)
+      log.error('Failted to parse jsipfs id response', result)
+      return done()
     }
-    console.log(`Running node with id ${host.ipfsConfig.id}`)
+    log.info(`Running node with id ${host.ipfsConfig.id}`)
     done()
   })
 }
