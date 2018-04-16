@@ -2,6 +2,8 @@
 
 const eachLimit = require('async/eachLimit')
 const containernet = require('containernet')
+const pull = require('pull-stream')
+const toPull = require('stream-to-pull-stream')
 
 const cn = containernet()
 
@@ -46,16 +48,34 @@ class TestNet {
   }
 
   start (cb) {
+    log.info('Starting test net')
     cn.start((err) => {
       if (err) throw err
-      eachLimit(this.hosts, 15, getHostId, cb)
-      log.info('Test net running')
+
+      // Set the cleanup handlers
+      const exitHandler = () => {
+        log.info('Cleanup successful')
+      }
+      process.on('SIGINT', this.stop.bind(this, exitHandler))
+      process.on('SIGTERM', this.stop.bind(this, exitHandler))
+      process.on('SIGHUP', this.stop.bind(this, exitHandler))
+
+      // Hold for the daemons to be ready
+      setTimeout(() => {
+        eachLimit(this.hosts, 15, getHostId, cb)
+        log.info('Test net running')
+      }, 5000)
     })
+  }
+
+  stop (cb) {
+    log.info('Stopping test net')
+    cn.stop(cb)
   }
 
   getNode (id) {
     const type = id[0]
-    const number = Number(id[1]) - 1 // Damn you arrays
+    const number = Number(id.slice(1)) - 1 // Damn you arrays
     if (type === 's') {
       return this.switches[number]
     } else if (type === 'd') {
@@ -66,16 +86,22 @@ class TestNet {
 }
 
 function getHostId (host, done) {
-  host.exec('jsipfs id', (err, result) => {
+  host.exec('jsipfs id', (err, stream) => {
     if (err) return done(err)
-    try {
-      host.ipfsConfig = JSON.parse(result)
-    } catch (e) {
-      log.error('Failted to parse jsipfs id response', result)
-      return done()
-    }
-    log.info(`Running node with id ${host.ipfsConfig.id}`)
-    done()
+    pull(
+      toPull.source(stream),
+      pull.concat((err, result) => {
+        if (err) return done(err)
+        try {
+          host.ipfsConfig = JSON.parse(result)
+        } catch (e) {
+          log.error('Failed to parse jsipfs id response', result)
+          return done()
+        }
+        log.info(`Running node with id ${host.ipfsConfig.id}`)
+        done()
+      })
+    )
   })
 }
 
