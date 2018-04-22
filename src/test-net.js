@@ -16,16 +16,16 @@ class TestNet {
     this._cn = containernet()
   }
 
-  bootstrapNetwork (hostsNum, switchesNum, links) {
-    for (let i = this.hosts.length; i < hostsNum; i++) {
+  bootstrapNetwork (network) {
+    for (let i = this.hosts.length; i < network.hosts; i++) {
       this.createHost()
     }
 
-    for (let i = this.switches.length; i < switchesNum; i++) {
+    for (let i = this.switches.length; i < network.switches; i++) {
       this.createSwitch()
     }
 
-    Object.entries(links).forEach(([from, to]) => {
+    Object.entries(network.links).forEach(([from, to]) => {
       to.forEach(node => {
         this.link(from, node)
       })

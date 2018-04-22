@@ -11,20 +11,7 @@ const testNet = new TestNet({
   host: IpfsHost
 })
 
-testNet.bootstrapNetwork(10, 1, {
-  s1: [
-    'd1',
-    'd2',
-    'd3',
-    'd4',
-    'd5',
-    'd6',
-    'd7',
-    'd8',
-    'd9',
-    'd10'
-  ]
-})
+testNet.bootstrapNetwork(require('./networks/tiny'))
 
 testNet.start((err) => {
   if (err) throw err
