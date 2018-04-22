@@ -2,29 +2,26 @@
 
 const eachLimit = require('async/eachLimit')
 const containernet = require('containernet')
-const pull = require('pull-stream')
-const toPull = require('stream-to-pull-stream')
 
-const cn = containernet()
-
+// TODO proper logging
 const log = console
 
 class TestNet {
-  constructor ({hostConfig = {}, hostNumber, switchesNumber} = {}) {
+  constructor ({host, hostConfig = {}} = {}) {
     this.switches = []
     this.hosts = []
-    this.hostNumber = hostNumber
-    this.switchesNumber = switchesNumber
     this.hostConfig = hostConfig
+    this.host = host
     this.running = false
+    this._cn = containernet()
   }
 
-  bootstrapNetwork (links) {
-    for (let i = this.hosts.length; i < this.hostNumber; i++) {
+  bootstrapNetwork (hostsNum, switchesNum, links) {
+    for (let i = this.hosts.length; i < hostsNum; i++) {
       this.createHost()
     }
 
-    for (let i = this.switches.length; i < this.switchesNumber; i++) {
+    for (let i = this.switches.length; i < switchesNum; i++) {
       this.createSwitch()
     }
 
@@ -36,11 +33,11 @@ class TestNet {
   }
 
   createSwitch () {
-    this.switches.push(cn.createSwitch())
+    this.switches.push(this._cn.createSwitch())
   }
 
   createHost () {
-    this.hosts.push(cn.createHost(this.hostConfig))
+    this.hosts.push(this.host.create(this._cn, this.hostConfig))
   }
 
   link (from, to) {
@@ -49,7 +46,7 @@ class TestNet {
 
   start (cb) {
     log.info('Starting test net')
-    cn.start((err) => {
+    this._cn.start((err) => {
       if (err) throw err
 
       // Set the cleanup handlers
@@ -60,17 +57,16 @@ class TestNet {
       process.on('SIGTERM', this.stop.bind(this, exitHandler))
       process.on('SIGHUP', this.stop.bind(this, exitHandler))
 
-      // Hold for the daemons to be ready
-      setTimeout(() => {
-        eachLimit(this.hosts, 15, getHostId, cb)
-        log.info('Test net running')
-      }, 5000)
+      eachLimit(this.hosts, 15, (host, done) => host.start(done), cb)
+
+      this.running = true
+      log.info('Test net running')
     })
   }
 
   stop (cb) {
     log.info('Stopping test net')
-    cn.stop(cb)
+    this._cn.stop(cb)
   }
 
   getNode (id) {
@@ -83,26 +79,6 @@ class TestNet {
     }
     return null
   }
-}
-
-function getHostId (host, done) {
-  host.exec('jsipfs id', (err, stream) => {
-    if (err) return done(err)
-    pull(
-      toPull.source(stream),
-      pull.concat((err, result) => {
-        if (err) return done(err)
-        try {
-          host.ipfsConfig = JSON.parse(result)
-        } catch (e) {
-          log.error('Failed to parse jsipfs id response', result)
-          return done()
-        }
-        log.info(`Running node with id ${host.ipfsConfig.id}`)
-        done()
-      })
-    )
-  })
 }
 
 module.exports = TestNet
