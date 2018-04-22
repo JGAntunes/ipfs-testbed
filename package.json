@@ -23,7 +23,7 @@
   "homepage": "https://github.com/JGAntunes/pulsarcast-test-harness#readme",
   "dependencies": {
     "async": "^2.6.0",
-    "containernet": "^0.1.0",
+    "containernet": "^0.2.0",
     "pull-split": "^0.2.0",
     "pull-stream": "^3.6.7",
     "stream-to-pull-stream": "^1.7.2"
