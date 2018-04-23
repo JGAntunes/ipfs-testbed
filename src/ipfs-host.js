@@ -15,7 +15,7 @@ function IpfsHost (containernet, hostConfig) {
   const host = containernet.createHost(hostConfig)
 
   host.start = (cb) => {
-    host.logs({follow: true, stderr: true, stdout: true}, (err, stream) => {
+    host.exec('./init-and-daemon.sh', (err, stream) => {
       if (err) return cb(err)
       pull(
         toPull.source(stream),
@@ -26,6 +26,7 @@ function IpfsHost (containernet, hostConfig) {
           if (!data) return cb(new Error('Failed to start daemon'))
           return getHostId(host, cb)
         })
+        // pull.log()
       )
     })
   }

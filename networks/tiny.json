@@ -1,6 +1,10 @@
 {
-  "hosts": 3,
-  "switches": 1,
+  "hosts": {
+    "number": 3
+  },
+  "switches": {
+    "number": 1
+  },
   "links": {
     "s1": [
       "d1",

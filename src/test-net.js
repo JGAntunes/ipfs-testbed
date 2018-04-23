@@ -10,18 +10,19 @@ class TestNet {
   constructor ({host, hostConfig = {}} = {}) {
     this.switches = []
     this.hosts = []
-    this.hostConfig = hostConfig
+    this.defaultHostConfig = hostConfig
     this.host = host
     this.running = false
     this._cn = containernet()
   }
 
   bootstrapNetwork (network) {
-    for (let i = this.hosts.length; i < network.hosts; i++) {
-      this.createHost()
+    for (let i = this.hosts.length; i < network.hosts.number; i++) {
+      const hostConfig = network.hosts[`d${i + 1}`]
+      this.createHost(hostConfig)
     }
 
-    for (let i = this.switches.length; i < network.switches; i++) {
+    for (let i = this.switches.length; i < network.switches.number; i++) {
       this.createSwitch()
     }
 
@@ -36,8 +37,9 @@ class TestNet {
     this.switches.push(this._cn.createSwitch())
   }
 
-  createHost () {
-    this.hosts.push(this.host.create(this._cn, this.hostConfig))
+  createHost (hostConfig) {
+    const config = Object.assign({}, this.defaultHostConfig, hostConfig)
+    this.hosts.push(this.host.create(this._cn, config))
   }
 
   link (from, to) {
