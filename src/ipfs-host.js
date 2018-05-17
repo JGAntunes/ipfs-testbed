@@ -25,8 +25,11 @@ function IpfsHost (containernet, hostConfig) {
           if (err) return cb(err)
           if (!data) return cb(new Error('Failed to start daemon'))
           return getHostId(host, cb)
+          // parallel([
+          //   getHostId.bind(null, host),
+          //   setupNode.bind(null, host, hostConfig.ipfs)
+          // ], cb)
         })
-        // pull.log()
       )
     })
   }

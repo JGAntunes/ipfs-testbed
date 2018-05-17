@@ -1,6 +1,18 @@
 {
   "hosts": {
-    "number": 3
+    "number": 3,
+    "d1": {
+      "ipfs": { "peers": "d2"},
+      "ip": "10.0.0.0/24"
+    },
+    "d2": {
+      "ipfs": { "peers": "d3"},
+      "ip": "10.0.0.1/24"
+    },
+    "d3": {
+      "ipfs": { "peers": "d1"},
+      "ip": "10.0.0.2/24"
+    }
   },
   "switches": {
     "number": 1
