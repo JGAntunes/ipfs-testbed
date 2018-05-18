@@ -1,13 +1,14 @@
 'use strict'
 
-const eachLimit = require('async/eachLimit')
+const EventEmitter = require('events')
 const containernet = require('containernet')
 
 // TODO proper logging
 const log = console
 
-class TestNet {
+class TestNet extends EventEmitter {
   constructor ({host, hostConfig = {}} = {}) {
+    super()
     this.switches = []
     this.hosts = []
     this.defaultHostConfig = hostConfig
@@ -39,7 +40,7 @@ class TestNet {
 
   createHost (hostConfig) {
     const config = Object.assign({}, this.defaultHostConfig, hostConfig)
-    this.hosts.push(this.host.create(this._cn, config))
+    this.hosts.push(this.host.create(this, config))
   }
 
   link (from, to) {
@@ -59,7 +60,22 @@ class TestNet {
       process.on('SIGTERM', this.stop.bind(this, exitHandler))
       process.on('SIGHUP', this.stop.bind(this, exitHandler))
 
-      eachLimit(this.hosts, 15, (host, done) => host.start(done), cb)
+      // Setup handlers for host ready events
+      let hostsReady = 0
+      this.hosts.forEach((host) => {
+        host.once('ready', () => {
+          hostsReady++
+          // Emit ready:hosts if all hosts are ready
+          if (hostsReady === this.hosts.length) {
+            this.emit('ready:hosts')
+            // Emit ready for consistency
+            this.emit('ready')
+          }
+        })
+      })
+
+      // Let the hosts and apps know we're ready
+      this.emit('ready:network')
 
       this.running = true
       log.info('Test net running')
