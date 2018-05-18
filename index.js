@@ -11,7 +11,7 @@ const testNet = new TestNet({
   host: IpfsHost
 })
 
-const network = require('./networks/tiny')
+const network = require('./networks/disconnected')
 
 // TODO proper logging
 const log = console
