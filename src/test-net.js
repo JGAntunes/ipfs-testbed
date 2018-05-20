@@ -62,8 +62,10 @@ class TestNet extends EventEmitter {
 
       // Setup handlers for host ready events
       let hostsReady = 0
+
       this.hosts.forEach((host) => {
-        host.once('ready', () => {
+        const hostReady = (err) => {
+          if (err) log.error(err)
           hostsReady++
           // Emit ready:hosts if all hosts are ready
           if (hostsReady === this.hosts.length) {
@@ -71,7 +73,12 @@ class TestNet extends EventEmitter {
             // Emit ready for consistency
             this.emit('ready')
           }
-        })
+          host.removeListener('ready', hostReady)
+          host.removeListener('error', hostReady)
+        }
+
+        host.once('ready', hostReady)
+        host.once('error', hostReady)
       })
 
       // Let the hosts and apps know we're ready

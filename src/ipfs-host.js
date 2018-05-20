@@ -20,16 +20,16 @@ function IpfsHost (testNet, hostConfig) {
   // Once the network is ready start the daemon
   testNet.once('ready:network', () => {
     host.exec('./init-and-daemon.sh', (err, stream) => {
-      if (err) return log.error(err)
+      if (err) return host.emit(err)
       pull(
         toPull.source(stream),
         pullSplit('\n'),
         pull.filter(),
         pull.find((data) => data.includes('Daemon is ready'), (err, data) => {
-          if (err) return log.error(err)
-          if (!data) return log.error(new Error('Failed to start daemon'))
+          if (err) return host.emit('error', err)
+          if (!data) return host.emit('error', new Error('Failed to start daemon'))
           return getHostId(host, (err) => {
-            if (err) return log.error(err)
+            if (err) return host.emit('error', err)
             host.emit('ready')
           })
         })
