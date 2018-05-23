@@ -60,27 +60,6 @@ class TestNet extends EventEmitter {
       process.on('SIGTERM', this.stop.bind(this, exitHandler))
       process.on('SIGHUP', this.stop.bind(this, exitHandler))
 
-      // Setup handlers for host ready events
-      let hostsReady = 0
-
-      this.hosts.forEach((host) => {
-        const hostReady = (err) => {
-          if (err) log.error(err)
-          hostsReady++
-          // Emit ready:hosts if all hosts are ready
-          if (hostsReady === this.hosts.length) {
-            this.emit('ready:hosts')
-            // Emit ready for consistency
-            this.emit('ready')
-          }
-          host.removeListener('ready', hostReady)
-          host.removeListener('error', hostReady)
-        }
-
-        host.once('ready', hostReady)
-        host.once('error', hostReady)
-      })
-
       // Let the hosts and apps know we're ready
       this.emit('ready:network')
 

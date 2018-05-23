@@ -15,7 +15,7 @@ const log = console
 function IpfsHost (testNet, hostConfig) {
   const host = testNet._cn.createHost(hostConfig)
 
-  // Setup event handlers
+  // Setup handlers for host ready events
 
   // Once the network is ready start the daemon
   testNet.once('ready:network', () => {
@@ -61,7 +61,11 @@ function IpfsHost (testNet, hostConfig) {
         )
       })
     }, (err) => {
-      if (err) log.error(err)
+      if (err) {
+        log.error(err)
+        host.emit('error', err)
+      }
+      host.emit('connected')
     })
   })
 
