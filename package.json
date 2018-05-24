@@ -4,6 +4,8 @@
   "description": "Test harness for PulsarCast",
   "main": "index.js",
   "scripts": {
+    "start": "node .",
+    "start:pretty": "node . | bunyan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,6 +25,7 @@
   "homepage": "https://github.com/JGAntunes/pulsarcast-test-harness#readme",
   "dependencies": {
     "async": "^2.6.0",
+    "bunyan": "^1.8.12",
     "containernet": "^0.2.0",
     "pull-split": "^0.2.0",
     "pull-stream": "^3.6.7",

@@ -4,17 +4,15 @@ const eachLimit = require('async/eachLimit')
 const pullSplit = require('pull-split')
 const pull = require('pull-stream')
 const toPull = require('stream-to-pull-stream')
+const logger = require('./utils/logger').log
 
 module.exports = {
   create: IpfsHost
 }
 
-// TODO proper logging
-const log = console
-
 function IpfsHost (testNet, hostConfig) {
   const host = testNet._cn.createHost(hostConfig)
-
+  host.log = logger.child({ host })
   // Setup handlers for host ready events
 
   // Once the network is ready start the daemon
@@ -55,14 +53,14 @@ function IpfsHost (testNet, hostConfig) {
           pull.concat((err, result) => {
             if (err) return cb(err)
             if (result.includes('Error')) return cb(result)
-            log.info(`Peer ${host.id}:${host.ipfs.id} ${result}`)
+            host.log.info(`Peer ${result}`)
             cb()
           })
         )
       })
     }, (err) => {
       if (err) {
-        log.error(err)
+        host.log.error(err)
         host.emit('error', err)
       }
       host.emit('connected')
@@ -82,10 +80,12 @@ function getHostId (host, done) {
         try {
           host.ipfs = JSON.parse(result)
         } catch (e) {
-          log.error('Failed to parse jsipfs id response', result)
+          host.log.error('Failed to parse jsipfs id response', result)
           return done()
         }
-        log.info(`Running node with id ${host.ipfs.id}`)
+        // Update our logger
+        host.log = logger.child({ host })
+        host.log.info('Set peer id')
         done()
       })
     )

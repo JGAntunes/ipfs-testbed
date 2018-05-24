@@ -2,9 +2,7 @@
 
 const EventEmitter = require('events')
 const containernet = require('containernet')
-
-// TODO proper logging
-const log = console
+const { log } = require('./utils/logger')
 
 class TestNet extends EventEmitter {
   constructor ({host, hostConfig = {}} = {}) {

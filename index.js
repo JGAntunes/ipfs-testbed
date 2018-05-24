@@ -2,6 +2,7 @@
 
 const TestNet = require('./src/test-net')
 const IpfsHost = require('./src/ipfs-host')
+const { log, streamToLogger } = require('./src/utils/logger')
 
 const testNet = new TestNet({
   hostConfig: {
@@ -12,9 +13,6 @@ const testNet = new TestNet({
 })
 
 const network = require('./networks/tiny')
-
-// TODO proper logging
-const log = console
 
 testNet.bootstrapNetwork(network)
 
@@ -55,20 +53,15 @@ testNet.start((err) => {
 })
 
 testNet.on('connected', () => {
-  log.info('subscribe')
-  testNet.getNode('d1').exec('jsipfs pubsub sub batata', (err, stream) => {
-    if (err) throw err
-    log.info('publish')
-    stream.pipe(process.stdout)
-    setTimeout(() => {
-      testNet.getNode('d2').exec('jsipfs pubsub pub batata d2', (err, stream) => {
-        if (err) throw err
-        stream.pipe(process.stdout)
+  log.info('Hosts connected, executing scripts')
+  testNet.hosts.forEach((host) => {
+    const hostConfig = network.hosts[host.id]
+    if (!hostConfig || !hostConfig.script) return
+    hostConfig.script.forEach((command) => {
+      host.exec(command, (err, stream) => {
+        if (err) host.log.error(err)
+        streamToLogger(host.log, stream)
       })
-      testNet.getNode('d3').exec('jsipfs pubsub pub batata d3', (err, stream) => {
-        if (err) throw err
-        stream.pipe(process.stdout)
-      })
-    }, 300)
+    })
   })
 })

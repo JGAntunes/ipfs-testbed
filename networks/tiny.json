@@ -5,25 +5,25 @@
       "ipfs": { "peers": ["d2", "d3"]},
       "ip": "10.0.0.1/24",
       "script": [
-        "jsipfs sub stuff"
+        "jsipfs pubsub sub stuff"
       ]
     },
     "d2": {
       "ipfs": { "peers": "d3"},
       "ip": "10.0.0.2/24",
       "script": [
-        "jsipfs pub stuff d2:foobar",
-        "jsipfs pub stuff d2:message 2",
-        "jsipfs pub stuff d2:message 3"
+        "jsipfs pubsub pub stuff d2:foobar",
+        "jsipfs pubsub pub stuff d2:message:2",
+        "jsipfs pubsub pub stuff d2:message:3"
       ]
     },
     "d3": {
       "ipfs": { "peers": "d1"},
       "ip": "10.0.0.3/24",
       "script": [
-        "jsipfs pub stuff d3:foobar",
-        "jsipfs pub stuff d3:message 2",
-        "jsipfs pub stuff d3:message 3"
+        "jsipfs pubsub pub stuff d3:foobar",
+        "jsipfs pubsub pub stuff d3:message:2",
+        "jsipfs pubsub pub stuff d3:message:3"
       ]
     }
   },
