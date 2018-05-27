@@ -4,7 +4,7 @@ A test harness built for pulsarcast using [containernet](https://containernet.gi
 
 Although it's still a major work in progress, it should be possible to create virtually any kind of test harness for [IPFS](ipfs.io) using the primitives given here (see [networks](./networks) for some examples). In fact, the project is created in such a way that these modules can eventually be separated (SOON™), so you could virtually run anything as long as it runs in a container.
 
-![demo](./demo.gif)
+[![asciicast](https://asciinema.org/a/ZTASszWNi59XW7VeUwHGe8T2o.png)](https://asciinema.org/a/ZTASszWNi59XW7VeUwHGe8T2o)
 
 # Some important notes
 
