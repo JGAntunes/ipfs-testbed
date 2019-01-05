@@ -1,0 +1,21 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ipfs
+spec:
+  selector:
+    app: ipfs
+  type: NodePort
+  ports:
+  - name: swarm
+    protocol: TCP
+    port: 4002
+    targetPort: 8002
+  - name: ipfs-api
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
+  - name: toxiproxy-api
+    protocol: TCP
+    port: 8474
+    targetPort: 8474

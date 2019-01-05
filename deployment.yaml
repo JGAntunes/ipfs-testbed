@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipfs
+  labels:
+    app: ipfs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipfs
+  template:
+    metadata:
+      labels:
+        app: ipfs
+    spec:
+      containers:
+      - name: toxiproxy
+        image: shopify/toxiproxy
+        args: ["--host", "0.0.0.0"]
+        ports:
+        - name: toxiproxy-api
+          containerPort: 8474
+        - name: toxiproxy-proxy
+          containerPort: 8002
+      - name: js-ipfs
+        image: jgantunes/js-ipfs
+        ports:
+        - name: ipfs-swarm
+          containerPort: 4002
+        - name: ipfs-gateway
+          containerPort: 9090
