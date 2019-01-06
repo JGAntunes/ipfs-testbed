@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ipfs
+  name: ipfs-testbed
   labels:
-    app: ipfs
+    app: ipfs-testbed
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ipfs
+      app: ipfs-testbed
   template:
     metadata:
       labels:
-        app: ipfs
+        app: ipfs-testbed
     spec:
       containers:
       - name: toxiproxy

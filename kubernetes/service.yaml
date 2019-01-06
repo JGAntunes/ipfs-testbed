@@ -1,10 +1,12 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ipfs
+  name: ipfs-tested
+  labels:
+    app: ipfs-testbed
 spec:
   selector:
-    app: ipfs
+    app: ipfs-testbed
   type: NodePort
   ports:
   - name: swarm
