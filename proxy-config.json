@@ -1,0 +1,5 @@
+{
+  "name": "ipfs_swarm",
+  "listen": "0.0.0.0:4002",
+  "upstream": "0.0.0.0:8002"
+}

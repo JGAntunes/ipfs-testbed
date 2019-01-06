@@ -9,12 +9,12 @@ spec:
   ports:
   - name: swarm
     protocol: TCP
-    port: 4002
-    targetPort: 8002
+    port: 8002
+    targetPort: 4002
   - name: ipfs-api
     protocol: TCP
-    port: 9090
-    targetPort: 9090
+    port: 5002
+    targetPort: 5002
   - name: toxiproxy-api
     protocol: TCP
     port: 8474
