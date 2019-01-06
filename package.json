@@ -1,0 +1,42 @@
+{
+  "name": "pulsarcast-test-harness",
+  "version": "1.0.0",
+  "description": "Test harness for the Pulsarcast implementation in IPFS using Kubernetes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Such tests, very wow\"",
+    "test:ci": "npm run lint && npm test",
+    "lint": "standard .  | snazzy"
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JGAntunes/pulsarcast-test-harness.git"
+  },
+  "keywords": [
+    "ipfs",
+    "p2p",
+    "pulsarcast",
+    "test",
+    "distributed",
+    "kubernetes"
+  ],
+  "author": "João Antunes <me@jgantunes.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JGAntunes/pulsarcast-test-harness/issues"
+  },
+  "homepage": "https://github.com/JGAntunes/pulsarcast-test-harness#readme",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.7.2",
+    "toxiproxy-node-client": "^2.0.6"
+  },
+  "devDependencies": {
+    "pre-commit": "^1.2.2",
+    "snazzy": "^8.0.0",
+    "standard": "^12.0.1"
+  }
+}
