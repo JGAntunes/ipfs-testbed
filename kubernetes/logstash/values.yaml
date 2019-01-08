@@ -1,0 +1,16 @@
+---
+elasticsearch:
+  host: elasticsearch-master.ipfs-testbed
+  port: 9200
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: monitor
+  initialDelaySeconds: 120
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: monitor
+  initialDelaySeconds: 120
