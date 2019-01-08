@@ -1,0 +1,8 @@
+---
+config:
+  output:
+    file:
+      enabled: false
+    logstash:
+      hosts: ["logstash.ipfs-testbed:5044"]
+
