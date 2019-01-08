@@ -1,0 +1,17 @@
+---
+deployment:
+  config:
+    output:
+      file:
+        enabled: false
+      logstash:
+        enabled: true
+        hosts: ["logstash.ipfs-testbed:5044"]
+daemonset:
+  config:
+    output:
+      file:
+        enabled: false
+      logstash:
+        enabled: true
+        hosts: ["logstash.ipfs-testbed:5044"]
