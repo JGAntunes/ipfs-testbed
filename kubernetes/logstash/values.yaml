@@ -14,3 +14,46 @@ readinessProbe:
     path: /
     port: monitor
   initialDelaySeconds: 120
+
+filters:
+  main: |-
+    filter {
+      ## Check if message starts with '{'
+      ## and ends with '}', if true we should
+      ## parse this as a JSON
+      if [message] =~ /^{.*}$/ {
+        json {
+          source => "message"
+          target => "data"
+        }
+      } else if [kubernetes][container][name] == "js-ipfs" {
+        grok {
+          pattern_definitions => {
+            "JSON" => "{.*}"
+            "MODULE" => "[\w?:]*"
+          }   
+          match => {
+            message => [
+              "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message} %{JSON:data}",
+              "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message}"
+            ]   
+          }   
+          overwrite => [ "message" ]
+        }
+
+        # Set @timestamp using the date in the log message.
+        date {
+          match => [ "logdate", "ISO8601" ]
+          remove_field => [ "logdate" ]
+        }   
+
+        if [data] {
+          json {
+            source => "data"
+            target => "data"
+          }
+        }
+      }
+    
+    }
+
