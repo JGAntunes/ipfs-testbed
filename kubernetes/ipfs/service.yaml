@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: ipfs-testbed
+  namespace: ipfs-testbed
   labels:
     app: ipfs-testbed
 spec:

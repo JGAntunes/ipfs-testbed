@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ipfs-testbed
+  namespace: ipfs-testbed
   labels:
     app: ipfs-testbed
 spec:
@@ -38,7 +39,7 @@ spec:
           mountPath: /etc/toxiproxy-config
           readOnly: true
       - name: js-ipfs
-        image: jgantunes/js-ipfs
+        image: registry.gitlab.com/jgantunes/js-ipfs 
         ports:
         - name: ipfs-swarm
           containerPort: 4002
@@ -56,6 +57,9 @@ spec:
             port: ipfs-api
           initialDelaySeconds: 5
           periodSeconds: 10
+        env:
+        - name: DEBUG
+          value: "libp2p*,jsipfs*"
       volumes:
         - name: toxiproxy-config
           configMap:
