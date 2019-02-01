@@ -7,13 +7,13 @@ livenessProbe:
   httpGet:
     path: /
     port: monitor
-  initialDelaySeconds: 120
+  initialDelaySeconds: 240
 
 readinessProbe:
   httpGet:
     path: /
     port: monitor
-  initialDelaySeconds: 120
+  initialDelaySeconds: 240
 
 filters:
   main: |-
