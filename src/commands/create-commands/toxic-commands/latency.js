@@ -16,12 +16,17 @@ const cmd = {
       describe: 'delay to +/- latencey (in ms)',
       type: 'number',
       default: 50
+    }).options('stream', {
+      describe: 'inject toxic upstream or downstream',
+      type: 'string',
+      default: 'downstream'
     })
   },
-  handler: async ({ nodeId, latency, jitter }) => {
+  handler: async ({ nodeId, latency, jitter, stream }) => {
     const res = await k8sClient.getNodeInfo({ nodeId: nodeId })
     const payload = {
       type: 'latency',
+      stream,
       attributes: {
         latency,
         jitter
