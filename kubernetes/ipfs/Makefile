@@ -42,11 +42,14 @@ install:
 			node-$${n} \
 			-f values.json \
 			jgantunes/ipfs-testbed ; \
+			name=$$(kubectl get pods -l "app.kubernetes.io/instance=node-$$n" -o jsonpath='{.items[0].metadata.name}') ; \
+			id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
+			kubectl label all -l "app.kubernetes.io/instance=node-$$n" ipfs-testbed/ipfs-id=$${id} ; \
     n=$$((n - 1)) ; \
 	done;
 
 clean:
-	rm values.json
+	rm -f values.json
 
 delete:
 	n=$(NODE_NUMBER) ; while [ $${n} -gt 0 ] ; do \
