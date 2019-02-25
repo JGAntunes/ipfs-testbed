@@ -5,4 +5,29 @@ config:
       enabled: false
     logstash:
       hosts: ["logstash.ipfs-testbed:5044"]
-
+  processors:
+  - add_cloud_metadata:
+      in_cluster: true
+  - drop_event:
+      when:
+        or:
+        - equals:
+            kubernetes.labels.app: "logstash"
+        - equals:
+            kubernetes.labels.app: "kibana"
+        - equals:
+            kubernetes.labels.app: "elasticsearch-master"
+  - rename:
+      fields:
+      - from: "kubernetes.labels.app.kubernetes.io/name"
+        to: "kubernetes.labels.app_kubernetes_io/name"
+      - from: "kubernetes.labels.app.kubernetes.io/instance"
+        to: "kubernetes.labels.app_kubernetes_io/instance"
+      - from: "kubernetes.labels.app.kubernetes.io/managed-by"
+        to: "kubernetes.labels.app_kubernetes_io/managed-by"
+      ignore_missing: true
+  - drop_fields:
+      when:
+        has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+      fields:
+      - 'kubernetes.labels.app'
