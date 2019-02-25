@@ -1,55 +1,71 @@
 SHELL := /bin/bash
 
-.PHONY: install delete
+.PHONY: install install_multiple install_linked install_bootstraped add_helm_repo delete
+
+HELM_REPO_URL?=https://jgantunes.github.io/helm-charts
+HELM_REPO_NAME?=jgantunes
 
 NODE_NUMBER?=1
 NODE_FROM?=0
 BOOTSTRAP_NUMBER?=3
 
-all:
-	$(MAKE) clean
-	$$(echo '{"ipfs": {"config": {"Bootstrap": []}}}' > values.json) ; \
+install_bootstraped: clean bootstrap_values.json
 	# Setup bootstrap nodes
-	NODE_NUMBER=$(BOOTSTRAP_NUMBER) $(MAKE) install
+	NODE_NUMBER=$(BOOTSTRAP_NUMBER) $(MAKE) install_multiple
 	# Get node ids and build its swarm addresses
 	n=${BOOTSTRAP_NUMBER} ; while [ "$$n" -gt 0 ]; do \
-		name=$$(kubectl get pods -l "app.kubernetes.io/instance=node-$$n" -o jsonpath='{.items[0].metadata.name}') ; \
-		service=$$(kubectl get services -l "app.kubernetes.io/instance=node-$$n" -o jsonpath='{.items[0].metadata.name}') ; \
-		id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
-		address="/dns4/$$service/tcp/8002/ipfs/$$id" ; \
-		config=$$(cat values.json) ; \
-		$$(echo $$config | jq -c -r ".ipfs.config.Bootstrap += [\"$$address\"] " >values.json); \
+		RELEASE_NAME="node-$${n}" $(MAKE) update_bootstrap_list ; \
 		n=$$((n - 1)) ; \
 	done ;
 	# Setup remaining nodes
-	NODE_FROM=$(BOOTSTRAP_NUMBER) $(MAKE) install
+	NODE_FROM=$(BOOTSTRAP_NUMBER) $(MAKE) install_multiple
 
-install:
-	helm repo add jgantunes https://jgantunes.github.io/helm-charts
-	n=$(NODE_NUMBER) ; while [ $${n} -gt $(NODE_FROM) ] ; do \
-		helm upgrade --install \
-			--wait --timeout 600 \
-			--tiller-namespace ipfs-testbed \
-			--namespace ipfs-testbed \
-			--set ipfs.config.Discovery.webRTCStar.Enabled=false \
-			--set ipfs.env[0].name=DEBUG \
-			--set ipfs.env[0].value="libp2p*\,libp2p:dht*\,jsipfs*" \
-			--set ipfs.config.Addresses.Swarm[0]="/ip4/127.0.0.1/tcp/4002/dns4/node-$${n}-ipfs-testbed/tcp/8002" \
-			--set ipfs.config.Addresses.API="/ip4/0.0.0.0/tcp/5002" \
-			--set toxiproxy.config[0].name="ipfs_swarm" \
-			--set toxiproxy.config[0].listen="0.0.0.0:8002" \
-			--set toxiproxy.config[0].upstream="127.0.0.1:4002" \
-			node-$${n} \
-			-f values.json \
-			jgantunes/ipfs-testbed ; \
-			name=$$(kubectl get pods -l "app.kubernetes.io/instance=node-$$n" -o jsonpath='{.items[0].metadata.name}') ; \
-			id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
-			kubectl label all -l "app.kubernetes.io/instance=node-$$n" ipfs-testbed/ipfs-id=$${id} ; \
+install_linked: clean bootstrap_values.json
+	n=$(NODE_NUMBER) ; while [ $${n} -gt 0 ] ; do \
+		RELEASE_NAME="node-$${n}" $(MAKE) install ; \
+		RELEASE_NAME="node-$${n}" $(MAKE)  replace_bootstrap_list ; \
     n=$$((n - 1)) ; \
 	done;
 
+install_multiple:
+	n=$(NODE_NUMBER) ; while [ $${n} -gt $(NODE_FROM) ] ; do \
+		RELEASE_NAME="node-$${n}" $(MAKE) install ; \
+    n=$$((n - 1)) ; \
+	done;
+
+install: add_helm_repo
+	helm upgrade --install \
+		--wait --timeout 600 \
+		--tiller-namespace ipfs-testbed \
+		--namespace ipfs-testbed \
+		--set ipfs.config.Addresses.Swarm[0]="/ip4/127.0.0.1/tcp/4002/dns4/$(RELEASE_NAME)-ipfs-testbed/tcp/8002" \
+		$(RELEASE_NAME) \
+		-f values.yaml \
+		-f bootstrap_values.json \
+		jgantunes/ipfs-testbed ; \
+		name=$$(kubectl get pods -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
+		id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
+		kubectl label all -l "app.kubernetes.io/instance=$(RELEASE_NAME)" ipfs-testbed/ipfs-id=$${id} ; \
+
+add_helm_repo:
+	helm repo add $(HELM_REPO_NAME) ${HELM_REPO_URL}
+
+replace_bootstrap_list: clean bootstrap_values.json update_bootstrap_list
+
+update_bootstrap_list:
+	name=$$(kubectl get pods -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
+	service=$$(kubectl get services -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
+	id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
+	address="/dns4/$$service/tcp/8002/ipfs/$$id" ; \
+	config=$$(cat bootstrap_values.json) ; \
+	$$(echo $$config | jq -c -r ".ipfs.config.Bootstrap += [\"$$address\"] " >bootstrap_values.json); \
+
+
+bootstrap_values.json:
+	$$(echo '{"ipfs": {"config": {"Bootstrap": []}}}' > bootstrap_values.json)
+
 clean:
-	rm -f values.json
+	rm -f bootstrap_values.json
 
 delete:
 	n=$(NODE_NUMBER) ; while [ $${n} -gt 0 ] ; do \

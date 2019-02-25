@@ -1,0 +1,19 @@
+ipfs:
+  config:
+    Addresses:
+      API: "/ip4/0.0.0.0/tcp/5002"
+      Swarm:
+        - "/ip4/127.0.0.1/tcp/4002"
+    Discovery:
+      webRTCStar:
+        Enabled: false
+      MDNS:
+        Enabled: false
+  env:
+  - name: "DEBUG"
+    value: "libp2p*,libp2p:dht*,jsipfs*"
+toxiproxy:
+  config:
+  - name: "ipfs_swarm"
+    listen: "0.0.0.0:8002"
+    upstream: "127.0.0.1:4002"
