@@ -22,8 +22,9 @@ const cmd = {
     const node = getRandomElement(res)
     if (!node) return
     const ipfs = ipfsClient(node.hosts.ipfsAPI)
-    await ipfs.pulsarcast.subscribe(topicCid)
+    const response = await ipfs.pulsarcast.subscribe(topicCid)
     console.log({ name: node.name, id: node.id })
+    console.log(response)
   }
 }
 
