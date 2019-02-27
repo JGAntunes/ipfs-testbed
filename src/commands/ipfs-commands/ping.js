@@ -4,8 +4,8 @@
 const pull = require('pull-stream')
 const ipfsClient = require('ipfs-http-client')
 
-const { getRandomElement } = require('../../../lib/utils')
-const k8sClient = require('../../../lib/kubernetes-client')
+const { getRandomElement } = require('../../lib/utils')
+const k8sClient = require('../../lib/kubernetes-client')
 
 const cmd = {
   command: 'ping <to-node-id> [from-node-id]',

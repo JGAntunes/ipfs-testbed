@@ -1,8 +1,8 @@
 {
-  "name": "pulsarcast-test-harness",
-  "version": "1.0.0",
-  "description": "Test harness for the Pulsarcast implementation in IPFS using Kubernetes",
-  "main": "index.js",
+  "name": "ipfs-testbed",
+  "version": "0.1.0",
+  "description": "IPFS Testbed CLI tool",
+  "bin" : { "ipt" : "src/bin.js" },
   "scripts": {
     "test": "echo \"Such tests, very wow\"",
     "test:ci": "npm run lint && npm test",
@@ -19,9 +19,10 @@
   "keywords": [
     "ipfs",
     "p2p",
-    "pulsarcast",
     "test",
     "distributed",
+    "toxiproxy",
+    "elk",
     "kubernetes"
   ],
   "author": "João Antunes <me@jgantunes.com>",

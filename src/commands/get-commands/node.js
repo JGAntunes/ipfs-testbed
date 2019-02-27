@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
-const k8sClient = require('../../../lib/kubernetes-client')
+const k8sClient = require('../../lib/kubernetes-client')
 
 const cmd = {
   command: ['nodes [node-id]', 'node [node-id]'],

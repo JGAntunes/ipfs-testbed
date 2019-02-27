@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 'use strict'
 
-const k8sClient = require('../../../lib/kubernetes-client')
-const toxiproxyClient = require('../../../lib/toxiproxy-client')
+const k8sClient = require('../../lib/kubernetes-client')
+const toxiproxyClient = require('../../lib/toxiproxy-client')
 
 const cmd = {
   command: ['toxics [toxic] <node-id>', 'toxic [toxic] <node-id>'],

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 'use strict'
 
-const k8sClient = require('../../../../lib/kubernetes-client')
-const { getRandomElement } = require('../../../../lib/utils')
+const k8sClient = require('../../../lib/kubernetes-client')
+const { getRandomElement } = require('../../../lib/utils')
 const ipfsClient = require('ipfs-http-client')
 
 const cmd = {
