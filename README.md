@@ -1,13 +1,70 @@
-# Pulsarcast Test Harness
+# JS IPFS Testbed
 
-A test harness built for pulsarcast using [containernet](https://containernet.github.io/).
+A testbed for [JS-IPFS](https://github.com/ipfs/js-ipfs) built using [Toxiproxy](https://github.com/shopify/toxiproxy) and [Kubernetes](kubernetes.io). It's designed to work locally in your Minkube setup or it can be deployed in any current K8s cluster you have and scale it up as much as you like.
 
-Although it's still a major work in progress, it should be possible to create virtually any kind of test harness for [IPFS](ipfs.io) using the primitives given here (see [networks](./networks) for some examples). In fact, the project is created in such a way that these modules can eventually be separated (SOON™), so you could virtually run anything as long as it runs in a container.
+## Goals
 
-[![asciicast](https://asciinema.org/a/ZTASszWNi59XW7VeUwHGe8T2o.png)](https://asciinema.org/a/ZTASszWNi59XW7VeUwHGe8T2o)
+The purpose of this testbed is to run tests for my [M.Sc. Thesis project, Pulsarcast](https://github.com/JGAntunes/pulsarcast). What I was looking for initially was:
 
-# Some important notes
+- Configure and deploy a large amount of IPFS nodes in an automated and predictable way
+- Scale as much as our wallet can afford :money_with_wings::money_with_wings:
+- Interaction with the nodes should:
+  - Be simple and allow automation/scripts to be built on top of it
+  - Allow to target commands to a specific node
+  - Allow to target commands at a random node
+- Allow to simulate network failures, latency and other relevant issues
+- Continuously monitor and collect relevant data from the IPFS deployments and the resources used (network, disk, memory, CPU)
 
-The hosts can virtually be anything as long as it's a container but there's a strong requirement for some basic pre-sets. The **docker images used must have ifconfig installed** as containernet relies on it to setup the OpenFlow network between the hosts and switches.
+## How it works
 
-For **IPFS I'm using a [docker image](https://hub.docker.com/r/jgantunes/js-ipfs) fine tuned** for this purpose, which I try to keep updated as much as I can, having **ifconfig installed and a default configuration that strips all the bootsrap nodes and disables multicast DNS**
+### IPFS and Toxiproxy
+
+We deploy using [Helm](https://helm.sh) and use a [specific chart](https://github.com/JGAntunes/helm-charts/tree/master/ipfs-testbed) that deploys in a single pod an IPFS node and a Toxiproxy container as a sidecar, through where all the libp2p-swarm communication flows. Each deployment exposes the IPFS HTTP API, the Toxiproxy HTTP API and the libp2p-swarm TCP port proxied by toxiproxy.
+
+A service of type [`NodePort`](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) is created for each deployment, exposing each IPFS Node in a random port at each K8s Node (in the future ingreses might be considered). This also makes each [IPFS node discoverable using the DNS records created by K8s for each service](https://kubernetes.io/docs/concepts/services-networking/service/#dns).
+
+Readiness and liveness probes are configured by default, as well as the proxy setup for [libp2p-swarm default TCP port](https://github.com/ipfs/js-ipfs/blob/master/src/core/runtime/config-nodejs.js#L6).
+
+You can fine tune the config of both Toxiproxy and IPFS, including even the docker images used, using the [available options at the Helm chart](https://github.com/JGAntunes/helm-charts/blob/master/ipfs-testbed/values.yaml).
+
+### Test and interaction
+
+The deployment described above gives you two HTTP APIs that allow you to run [toxics](https://github.com/shopify/toxiproxy#toxics) (network interferance) and IPFS commands at each node.
+
+With this in mind we've build a CLI utility to cut down the burden of interacting with any specific node, running IPFS commands, or create/delete toxics.
+
+### Monitoring and collecting data/results
+
+The final component of the testbed is an ELK setup ([Elasticsearch](https://www.elastic.co/products/elasticsearch), [Logstash](https://www.elastic.co/products/logstash) and [Kibana](https://www.elastic.co/products/kibana)), also deployed in Kubernetes, used to monitor and collect data from your IPFS nodes. [Filebeat](https://www.elastic.co/products/beats/filebeat) and [Metricbeat](https://www.elastic.co/products/beats/metricbeat) are used to read the logs and metrics from your k8s cluster, forward these to logstash for processing which finally stores it in Elasticsearch. Kibana provides an UI from where you can query your data and build visualizations with it (some are already available in this repo, but you're of course free to add more).
+
+## Requirements
+
+In order to use and run everything in here you'll need:
+
+- `kubernetes` cluster  `>=v1.9`
+- `kubectl`
+- `helm`
+- `bash`
+- `jq`
+- `make`
+
+**IMPORTANT**: both the CLI and the `Makefiles` will use your current kube context, so make sure to have the right cluster selected before jumping on this.
+
+## Install
+
+Clone the repo:
+
+<TODO>
+
+All the Kubernetes setup we use are modularised and prepared to be installed using `make` so that you're free to setup and use what you feel fits your needs.
+
+If you want to, you can deploy everything ofc.
+
+Finally, as your last step, deploy `ipfs-testbed` selecting the option that best suits you:
+
+<TODO>
+
+## Usage
+
+## License
+MIT
