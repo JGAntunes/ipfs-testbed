@@ -87,47 +87,11 @@ In order to use the CLI run npm install in the root dir:
 npm install
 ```
 
-## Cli Usage
+## CLI Usage
 
-Once installed, you can use the cli like:
-```
-$ npx ipt--help
-ipt <command>
+Once installed, you can use the cli to interact with the testbed.
 
-Commands:
-  bin.js create <resources..>  creates the given resources
-  bin.js delete <resources..>  delete the given resources
-  bin.js exec <command..>      exec <command> in a IPFS Node
-  bin.js get <resources..>     get the given resources
-  bin.js completion            generate bash completion script
-
-Options:
-  --version   Show version number                                      [boolean]
-  -h, --help  Show help                                                [boolean]
-
-```
-
-You can run `npx ipt <command> --help` to get further details about a specific command:
-```
-$ npx ipt exec pulsarcast --help
-ipt exec pulsarcast <command>
-
-exec pulsarcast <command> in this IPFS Node
-
-Commands:
-  bin.js exec pulsarcast create             create a topic with name
-  <topic-name> [node-id]                    <topic-name> from [from-node-id] or
-                                            a random node
-  bin.js exec pulsarcast publish            publish <message> at <topic-cid>
-  <topic-cid> <message> [node-id]           from [node-id] or a random node
-  bin.js exec pulsarcast subscribe          subscribe to <topic-cid> from
-  <topic-cid> [node-id]                     [node-id] or a random node
-
-Options:
-  --version   Show version number                                      [boolean]
-  -h, --help  Show help                                                [boolean]
-
-```
+Check the [CLI Repo](https://github.com/JGAntunes/ipfs-testbed-cli) for more info.
 
 ## License
 MIT
