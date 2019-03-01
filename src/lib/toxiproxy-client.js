@@ -3,7 +3,7 @@
 const url = require('url')
 const request = require('superagent')
 
-const config = require('./config')
+const config = require('../config')
 
 function handleErrorCode (res) {
   const statusCode = res.status

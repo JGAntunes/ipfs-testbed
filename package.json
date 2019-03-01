@@ -2,7 +2,9 @@
   "name": "ipfs-testbed",
   "version": "0.1.0",
   "description": "IPFS Testbed CLI tool",
-  "bin" : { "ipt" : "src/bin.js" },
+  "bin": {
+    "ipt": "src/bin.js"
+  },
   "scripts": {
     "test": "echo \"Such tests, very wow\"",
     "test:ci": "npm run lint && npm test",

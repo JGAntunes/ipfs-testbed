@@ -2,6 +2,10 @@
 
 A testbed for [JS-IPFS](https://github.com/ipfs/js-ipfs) built using [Toxiproxy](https://github.com/shopify/toxiproxy) and [Kubernetes](kubernetes.io). It's designed to work locally in your Minkube setup or it can be deployed in any current K8s cluster you have and scale it up as much as you like.
 
+[!dashboard](./images/dashboard.png)
+
+[!discovery](./images/discovery.png)
+
 ## Goals
 
 The purpose of this testbed is to run tests for my [M.Sc. Thesis project, Pulsarcast](https://github.com/JGAntunes/pulsarcast). What I was looking for initially was:
@@ -47,6 +51,7 @@ In order to use and run everything in here you'll need:
 - `bash`
 - `jq`
 - `make`
+- `nodejs` `>=8` in order to use the cli
 
 **IMPORTANT**: both the CLI and the `Makefiles` will use your current kube context, so make sure to have the right cluster selected before jumping on this.
 
@@ -54,17 +59,75 @@ In order to use and run everything in here you'll need:
 
 Clone the repo:
 
-<TODO>
+```
+git clone git@github.com:JGAntunes/ipfs-testbed.git
+```
 
-All the Kubernetes setup we use are modularised and prepared to be installed using `make` so that you're free to setup and use what you feel fits your needs.
+All the Kubernetes setup we use is modularised and prepared to be installed using `make` so that you're free to setup and use what you feel fits your needs.
 
 If you want to, you can deploy everything ofc.
 
-Finally, as your last step, deploy `ipfs-testbed` selecting the option that best suits you:
+Run thtough the sub dirs in `./kubernetes` and run `make` (except for `ipfs-testbed`, that will be the next and final deployment step)
 
-<TODO>
+Finally, deploy `ipfs-testbed` selecting the option that best suits you:
 
-## Usage
+```
+# Deploy 10 nodes, two of which will act as bootstrap nodes
+# to which every other node will connect
+NODE_NUMBER=10 BOOTSTRAP_NUMBER=2 make install_bootstraped
+
+# Deploy 10 nodes, with each node connecting by default with
+# the previous one
+NODE_NUMBER=10 make install_linked
+```
+
+In order to use the CLI run npm install in the root dir:
+
+```
+npm install
+```
+
+## Cli Usage
+
+Once installed, you can use the cli like:
+```
+$ npx ipt--help
+ipt <command>
+
+Commands:
+  bin.js create <resources..>  creates the given resources
+  bin.js delete <resources..>  delete the given resources
+  bin.js exec <command..>      exec <command> in a IPFS Node
+  bin.js get <resources..>     get the given resources
+  bin.js completion            generate bash completion script
+
+Options:
+  --version   Show version number                                      [boolean]
+  -h, --help  Show help                                                [boolean]
+
+```
+
+You can run `npx ipt <command> --help` to get further details about a specific command:
+```
+$ npx ipt exec pulsarcast --help
+ipt exec pulsarcast <command>
+
+exec pulsarcast <command> in this IPFS Node
+
+Commands:
+  bin.js exec pulsarcast create             create a topic with name
+  <topic-name> [node-id]                    <topic-name> from [from-node-id] or
+                                            a random node
+  bin.js exec pulsarcast publish            publish <message> at <topic-cid>
+  <topic-cid> <message> [node-id]           from [node-id] or a random node
+  bin.js exec pulsarcast subscribe          subscribe to <topic-cid> from
+  <topic-cid> [node-id]                     [node-id] or a random node
+
+Options:
+  --version   Show version number                                      [boolean]
+  -h, --help  Show help                                                [boolean]
+
+```
 
 ## License
 MIT

@@ -2,7 +2,7 @@
 
 const k8s = require('@kubernetes/client-node')
 
-const config = require('./config').kubernetes
+const config = require('../config').kubernetes
 
 const kc = new k8s.KubeConfig()
 kc.loadFromDefault()
