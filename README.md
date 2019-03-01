@@ -2,9 +2,9 @@
 
 A testbed for [JS-IPFS](https://github.com/ipfs/js-ipfs) built using [Toxiproxy](https://github.com/shopify/toxiproxy) and [Kubernetes](kubernetes.io). It's designed to work locally in your Minkube setup or it can be deployed in any current K8s cluster you have and scale it up as much as you like.
 
-[!dashboard](./images/dashboard.png)
+![dashboard](./images/dashboard.png)
 
-[!discovery](./images/discovery.png)
+![discovery](./images/discovery.png)
 
 ## Goals
 
