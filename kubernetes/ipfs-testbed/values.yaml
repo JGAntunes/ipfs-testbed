@@ -11,7 +11,15 @@ ipfs:
         Enabled: false
   env:
   - name: "DEBUG"
-    value: "libp2p*,libp2p:dht*,jsipfs*"
+    value: "libp2p:pulsarcast*,libp2p:dht*,jsipfs*"
+  readinessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 20
+    timeoutSeconds: 5
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 20
+    timeoutSeconds: 5
 toxiproxy:
   config:
   - name: "ipfs_swarm"

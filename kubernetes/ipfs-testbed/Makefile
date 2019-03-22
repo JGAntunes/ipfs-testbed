@@ -4,6 +4,8 @@ SHELL := /bin/bash
 
 HELM_REPO_URL?=https://jgantunes.github.io/helm-charts
 HELM_REPO_NAME?=jgantunes
+HELM_OPTIONS?=--wait --timeout 600
+HELM_NAMESPACE?=ipfs-testbed
 
 NODE_NUMBER?=1
 NODE_FROM?=0
@@ -31,13 +33,13 @@ install_multiple:
 	n=$(NODE_NUMBER) ; while [ $${n} -gt $(NODE_FROM) ] ; do \
 		RELEASE_NAME="node-$${n}" $(MAKE) install ; \
     n=$$((n - 1)) ; \
-	done;
+	done ; \
 
 install: add_helm_repo
 	helm upgrade --install \
-		--wait --timeout 600 \
-		--tiller-namespace ipfs-testbed \
-		--namespace ipfs-testbed \
+		$(HELM_OPTIONS) \
+		--tiller-namespace $(HELM_NAMESPACE) \
+		--namespace $(HELM_NAMESPACE) \
 		--set ipfs.config.Addresses.Swarm[0]="/ip4/127.0.0.1/tcp/4002/dns4/$(RELEASE_NAME)-ipfs-testbed/tcp/8002" \
 		$(RELEASE_NAME) \
 		-f values.yaml \
@@ -69,6 +71,6 @@ clean:
 
 delete:
 	n=$(NODE_NUMBER) ; while [ $${n} -gt 0 ] ; do \
-		helm delete --purge node-$${n} --tiller-namespace ipfs-testbed; \
+		helm delete --purge node-$${n} --tiller-namespace $(HELM_NAMESPACE); \
     n=$$((n - 1)) ; \
 	done;

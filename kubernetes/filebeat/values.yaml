@@ -10,13 +10,16 @@ config:
       in_cluster: true
   - drop_event:
       when:
-        or:
-        - equals:
-            kubernetes.labels.app: "logstash"
-        - equals:
-            kubernetes.labels.app: "kibana"
-        - equals:
-            kubernetes.labels.app: "elasticsearch-master"
+        and:
+          - not:
+              has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
+          - or:
+            - equals:
+                kubernetes.labels.app: "logstash"
+            - equals:
+                kubernetes.labels.app: "kibana"
+            - equals:
+                kubernetes.labels.app: "elasticsearch-master"
   - rename:
       fields:
       - from: "kubernetes.labels.app.kubernetes.io/name"

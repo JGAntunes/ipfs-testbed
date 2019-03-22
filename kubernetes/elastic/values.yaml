@@ -6,4 +6,15 @@ resources:
     cpu: 100m
   limits:
     memory: 2Gi
-    cpu: 500m
+    cpu: 1000m
+
+readinessProbe:
+  failureThreshold: 6
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  successThreshold: 3
+  timeoutSeconds: 10
+
+esConfig:
+  elasticsearch.yml: |
+    xpack.monitoring.collection.enabled: true

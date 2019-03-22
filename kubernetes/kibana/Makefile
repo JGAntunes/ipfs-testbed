@@ -3,11 +3,11 @@
 install:
 	helm repo add elastic https://helm.elastic.co
 	helm upgrade --install \
-		--tiller-namespace ipfs-testbed \
-		--namespace ipfs-testbed \
+		--tiller-namespace elastic \
+		--namespace elastic \
 		-f values.yaml \
 		kibana \
 		elastic/kibana
 
 delete:
-	helm delete --purge kibana --tiller-namespace ipfs-testbed
+	helm delete --purge kibana --tiller-namespace elastic

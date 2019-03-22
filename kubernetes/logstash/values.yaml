@@ -1,4 +1,11 @@
 ---
+replicaCount: 3
+
+image:
+  repository: docker.elastic.co/logstash/logstash
+  tag: 6.5.4
+  pullPolicy: IfNotPresent
+
 elasticsearch:
   host: elasticsearch-master.ipfs-testbed
   port: 9200
@@ -8,12 +15,24 @@ livenessProbe:
     path: /
     port: monitor
   initialDelaySeconds: 240
+  periodSeconds: 30
+  timeoutSeconds: 30
+  failureThreshold: 6
+  successThreshold: 1
 
 readinessProbe:
   httpGet:
     path: /
     port: monitor
   initialDelaySeconds: 240
+  periodSeconds: 30
+  timeoutSeconds: 30
+  failureThreshold: 6
+  successThreshold: 1
+
+config:
+  xpack.monitoring.enabled: true
+  xpack.monitoring.elasticsearch.url: "http://elasticsearch-master.ipfs-testbed:9200"
 
 filters:
   main: |-
@@ -26,34 +45,35 @@ filters:
           source => "message"
           target => "data"
         }
-      } else if [kubernetes][container][name] == "js-ipfs" {
-        grok {
-          pattern_definitions => {
-            "JSON" => "{.*}"
-            "MODULE" => "[\w?:]*"
+      } else if [beat][name] =~ /^filebeat-.*$/ {
+        if [kubernetes][container][name] == "js-ipfs" {
+          grok {
+            pattern_definitions => {
+              "JSON" => "{.*}"
+              "MODULE" => "[\w?:]*"
+            }   
+            match => {
+              message => [
+                "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message} %{JSON:data}",
+                "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message}"
+              ]   
+            }   
+            overwrite => [ "message" ]
+          }
+  
+          # Set @timestamp using the date in the log message.
+          date {
+            match => [ "logdate", "ISO8601" ]
+            remove_field => [ "logdate" ]
           }   
-          match => {
-            message => [
-              "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message} %{JSON:data}",
-              "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message}"
-            ]   
-          }   
-          overwrite => [ "message" ]
-        }
-
-        # Set @timestamp using the date in the log message.
-        date {
-          match => [ "logdate", "ISO8601" ]
-          remove_field => [ "logdate" ]
-        }   
-
-        if [data] {
-          json {
-            source => "data"
-            target => "data"
+  
+          if [data] {
+            json {
+              source => "data"
+              target => "data"
+            }
           }
         }
       }
-    
     }
 

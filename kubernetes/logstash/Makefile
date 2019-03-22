@@ -2,11 +2,11 @@
 
 install:
 	helm upgrade --install \
-		--tiller-namespace ipfs-testbed \
-		--namespace ipfs-testbed \
+		--tiller-namespace elastic \
+		--namespace elastic \
 		-f values.yaml \
 		logstash \
 		stable/logstash
 
 delete:
-	helm delete --purge logstash --tiller-namespace ipfs-testbed
+	helm delete --purge logstash --tiller-namespace elastic

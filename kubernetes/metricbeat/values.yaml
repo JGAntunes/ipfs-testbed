@@ -1,18 +1,42 @@
 ---
 deployment:
+  modules:
+    kubernetes:
+      enabled: true
+      config:
+        - module: kubernetes
+          metricsets:
+            - state_node
+            - state_deployment
+            - state_replicaset
+            - state_pod
+            - state_container
+            # Uncomment this to get k8s events:
+            # - event
+          period: 30s
+          hosts: ["kube-state-metrics:8080"]
+
   config:
+    queue.mem:
+      events: 16384
+      flush.min_events: 512
+      flush.timeout: 5s
     processors:
-    - add_cloud_metadata:
+    - add_cloud_metadata: ~
+    - add_kubernetes_metadata:
         in_cluster: true
-    - drop_event:
-        when:
-          or:
-          - equals:
-              kubernetes.labels.app: "logstash"
-          - equals:
-              kubernetes.labels.app: "kibana"
-          - equals:
-              kubernetes.labels.app: "elasticsearch-master"
+    # - drop_event:
+    #     when:
+    #       and:
+    #         - not:
+    #             has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
+    #         - or:
+    #           - equals:
+    #               kubernetes.labels.app: "logstash"
+    #           - equals:
+    #               kubernetes.labels.app: "kibana"
+    #           - equals:
+    #               kubernetes.labels.app: "elasticsearch-master"
     - rename:
         fields:
         - from: "kubernetes.labels.app.kubernetes.io/name"
@@ -22,31 +46,67 @@ deployment:
         - from: "kubernetes.labels.app.kubernetes.io/managed-by"
           to: "kubernetes.labels.app_kubernetes_io/managed-by"
         ignore_missing: true
-    - drop_fields:
+    - rename:
         when:
-          has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+          not:
+            has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+        fields:
+          - from: 'kubernetes.labels.app'
+            to: 'kubernetes.labels.app_kubernetes_io/name'
+    - drop_fields:
         fields:
         - 'kubernetes.labels.app'
+    # - drop_fields:
+    #     when:
+    #       has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+    #     fields:
+    #     - 'kubernetes.labels.app'
     output:
       file:
         enabled: false
       logstash:
         enabled: true
         hosts: ["logstash.ipfs-testbed:5044"]
+        pipelining: 3
+        bulk_max_size: 8192
+
 daemonset:
+  modules:
+    kubernetes:
+      enabled: true
+      config:
+        - module: kubernetes
+          metricsets:
+            - node
+            - system
+            - pod
+            - container
+            - volume
+          period: 30s
+          host: ${NODE_NAME}
+          hosts: ["localhost:10255"]
+
   config:
+    queue.mem:
+      events: 16384
+      flush.min_events: 512
+      flush.timeout: 5s
     processors:
-    - add_cloud_metadata:
+    - add_cloud_metadata: ~
+    - add_kubernetes_metadata:
         in_cluster: true
-    - drop_event:
-        when:
-          or:
-          - equals:
-              kubernetes.labels.app: "logstash"
-          - equals:
-              kubernetes.labels.app: "kibana"
-          - equals:
-              kubernetes.labels.app: "elasticsearch-master"
+    # - drop_event:
+    #     when:
+    #       and:
+    #         - not:
+    #             has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
+    #         - or:
+    #           - equals:
+    #               kubernetes.labels.app: "logstash"
+    #           - equals:
+    #               kubernetes.labels.app: "kibana"
+    #           - equals:
+    #               kubernetes.labels.app: "elasticsearch-master"
     - rename:
         fields:
         - from: "kubernetes.labels.app.kubernetes.io/name"
@@ -56,11 +116,21 @@ daemonset:
         - from: "kubernetes.labels.app.kubernetes.io/managed-by"
           to: "kubernetes.labels.app_kubernetes_io/managed-by"
         ignore_missing: true
-    - drop_fields:
+    - rename:
         when:
-          has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+          not:
+            has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+        fields:
+          - from: 'kubernetes.labels.app'
+            to: 'kubernetes.labels.app_kubernetes_io/name'
+    - drop_fields:
         fields:
         - 'kubernetes.labels.app'
+    # - drop_fields:
+    #     when:
+    #       has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+    #     fields:
+    #     - 'kubernetes.labels.app'
     output:
       file:
         enabled: false
