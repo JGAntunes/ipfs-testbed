@@ -7,7 +7,7 @@ image:
   pullPolicy: IfNotPresent
 
 elasticsearch:
-  host: elasticsearch-master.ipfs-testbed
+  host: elasticsearch-master.elastic
   port: 9200
 
 livenessProbe:
@@ -32,7 +32,7 @@ readinessProbe:
 
 config:
   xpack.monitoring.enabled: true
-  xpack.monitoring.elasticsearch.url: "http://elasticsearch-master.ipfs-testbed:9200"
+  xpack.monitoring.elasticsearch.url: "http://elasticsearch-master.elastic:9200"
 
 filters:
   main: |-

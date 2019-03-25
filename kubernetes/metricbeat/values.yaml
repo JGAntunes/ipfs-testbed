@@ -66,7 +66,7 @@ deployment:
         enabled: false
       logstash:
         enabled: true
-        hosts: ["logstash.ipfs-testbed:5044"]
+        hosts: ["logstash.elastic:5044"]
         pipelining: 3
         bulk_max_size: 8192
 
@@ -136,4 +136,4 @@ daemonset:
         enabled: false
       logstash:
         enabled: true
-        hosts: ["logstash.ipfs-testbed:5044"]
+        hosts: ["logstash.elastic:5044"]

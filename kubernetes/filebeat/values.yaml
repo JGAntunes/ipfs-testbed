@@ -4,7 +4,7 @@ config:
     file:
       enabled: false
     logstash:
-      hosts: ["logstash.ipfs-testbed:5044"]
+      hosts: ["logstash.elastic:5044"]
   processors:
   - add_cloud_metadata:
       in_cluster: true

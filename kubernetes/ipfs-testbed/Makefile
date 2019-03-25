@@ -31,9 +31,13 @@ install_linked: clean bootstrap_values.json
 
 install_multiple:
 	n=$(NODE_NUMBER) ; while [ $${n} -gt $(NODE_FROM) ] ; do \
-		RELEASE_NAME="node-$${n}" $(MAKE) install ; \
-    n=$$((n - 1)) ; \
-	done ; \
+		p=$$(nproc) ; while [ $${p} -gt 0  -a $${n} -gt $(NODE_FROM) ] ; do \
+			RELEASE_NAME="node-$${n}" $(MAKE) install & \
+    	n=$$((n - 1)) ; \
+    	p=$$((p - 1)) ; \
+		done ; \
+		wait ; \
+	done ; 
 
 install: add_helm_repo
 	helm upgrade --install \
@@ -45,9 +49,9 @@ install: add_helm_repo
 		-f values.yaml \
 		-f bootstrap_values.json \
 		jgantunes/ipfs-testbed ; \
-		name=$$(kubectl get pods -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
-		id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
-		kubectl label all -l "app.kubernetes.io/instance=$(RELEASE_NAME)" ipfs-testbed/ipfs-id=$${id} ; \
+	name=$$(kubectl -n $(HELM_NAMESPACE) get pods -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
+	id=$$(kubectl -n $(HELM_NAMESPACE) exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
+	kubectl -n $(HELM_NAMESPACE) label all -l "app.kubernetes.io/instance=$(RELEASE_NAME)" ipfs-testbed/ipfs-id=$${id} ; \
 
 add_helm_repo:
 	helm repo add $(HELM_REPO_NAME) ${HELM_REPO_URL}
@@ -55,9 +59,9 @@ add_helm_repo:
 replace_bootstrap_list: clean bootstrap_values.json update_bootstrap_list
 
 update_bootstrap_list:
-	name=$$(kubectl get pods -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
-	service=$$(kubectl get services -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
-	id=$$(kubectl exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
+	name=$$(kubectl -n $(HELM_NAMESPACE) get pods -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
+	service=$$(kubectl -n $(HELM_NAMESPACE) get services -l "app.kubernetes.io/instance=$(RELEASE_NAME)" -o jsonpath='{.items[0].metadata.name}') ; \
+	id=$$(kubectl -n $(HELM_NAMESPACE) exec $$name --container=js-ipfs jsipfs id | jq -r ".id | tostring") ; \
 	address="/dns4/$$service/tcp/8002/ipfs/$$id" ; \
 	config=$$(cat bootstrap_values.json) ; \
 	$$(echo $$config | jq -c -r ".ipfs.config.Bootstrap += [\"$$address\"] " >bootstrap_values.json); \

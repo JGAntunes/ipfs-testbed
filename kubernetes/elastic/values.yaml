@@ -8,12 +8,14 @@ resources:
     memory: 2Gi
     cpu: 1000m
 
+clusterHealthCheckParams: "wait_for_status=yellow&timeout=5s"
+
 readinessProbe:
-  failureThreshold: 6
+  failureThreshold: 8
   initialDelaySeconds: 120
-  periodSeconds: 10
-  successThreshold: 3
-  timeoutSeconds: 10
+  periodSeconds: 30
+  successThreshold: 1
+  timeoutSeconds: 30
 
 esConfig:
   elasticsearch.yml: |
