@@ -15,11 +15,11 @@ ipfs:
   readinessProbe:
     initialDelaySeconds: 20
     periodSeconds: 20
-    timeoutSeconds: 5
+    timeoutSeconds: 20
   livenessProbe:
     initialDelaySeconds: 20
     periodSeconds: 20
-    timeoutSeconds: 5
+    timeoutSeconds: 20
 toxiproxy:
   config:
   - name: "ipfs_swarm"

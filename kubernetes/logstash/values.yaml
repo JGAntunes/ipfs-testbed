@@ -37,15 +37,7 @@ config:
 filters:
   main: |-
     filter {
-      ## Check if message starts with '{'
-      ## and ends with '}', if true we should
-      ## parse this as a JSON
-      if [message] =~ /^{.*}$/ {
-        json {
-          source => "message"
-          target => "data"
-        }
-      } else if [beat][name] =~ /^filebeat-.*$/ {
+      if [beat][name] =~ /^filebeat-.*$/ {
         if [kubernetes][container][name] == "js-ipfs" {
           grok {
             pattern_definitions => {

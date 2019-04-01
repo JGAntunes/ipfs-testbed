@@ -13,14 +13,18 @@ deployment:
             - state_container
             # Uncomment this to get k8s events:
             # - event
-          period: 30s
+          period: 2m
           hosts: ["kube-state-metrics:8080"]
 
   config:
+    xpack.monitoring:
+      enabled: true
+      elasticsearch:
+        hosts: ["http://elasticsearch-master.elastic:9200"]
     queue.mem:
-      events: 16384
+      events: 100000
       flush.min_events: 512
-      flush.timeout: 5s
+      flush.timeout: 30s
     processors:
     - add_cloud_metadata: ~
     - add_kubernetes_metadata:
@@ -68,7 +72,7 @@ deployment:
         enabled: true
         hosts: ["logstash.elastic:5044"]
         pipelining: 3
-        bulk_max_size: 8192
+        bulk_max_size: 100000
 
 daemonset:
   modules:
@@ -82,15 +86,19 @@ daemonset:
             - pod
             - container
             - volume
-          period: 30s
+          period: 2m
           host: ${NODE_NAME}
           hosts: ["localhost:10255"]
 
   config:
+    xpack.monitoring:
+      enabled: true
+      elasticsearch:
+        hosts: ["http://elasticsearch-master.elastic:9200"]
     queue.mem:
-      events: 16384
+      events: 100000
       flush.min_events: 512
-      flush.timeout: 5s
+      flush.timeout: 30s
     processors:
     - add_cloud_metadata: ~
     - add_kubernetes_metadata:
@@ -137,3 +145,5 @@ daemonset:
       logstash:
         enabled: true
         hosts: ["logstash.elastic:5044"]
+        pipelining: 3
+        bulk_max_size: 100000

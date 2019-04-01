@@ -1,5 +1,9 @@
 ---
 config:
+  xpack.monitoring:
+    enabled: true
+    elasticsearch:
+      hosts: ["http://elasticsearch-master.elastic:9200"]
   output:
     file:
       enabled: false
