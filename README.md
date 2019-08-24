@@ -41,6 +41,8 @@ With this in mind we've build a CLI utility to cut down the burden of interactin
 
 The final component of the testbed is an ELK setup ([Elasticsearch](https://www.elastic.co/products/elasticsearch), [Logstash](https://www.elastic.co/products/logstash) and [Kibana](https://www.elastic.co/products/kibana)), also deployed in Kubernetes, used to monitor and collect data from your IPFS nodes. [Filebeat](https://www.elastic.co/products/beats/filebeat) and [Metricbeat](https://www.elastic.co/products/beats/metricbeat) are used to read the logs and metrics from your k8s cluster, forward these to logstash for processing which finally stores it in Elasticsearch. Kibana provides an UI from where you can query your data and build visualizations with it (some are already available in this repo, but you're of course free to add more).
 
+**Note:** There's a set of Kibana dashboards you can reuse under the [dashboards directory](./dashboards)
+
 ## Requirements
 
 In order to use and run everything in here you'll need:
