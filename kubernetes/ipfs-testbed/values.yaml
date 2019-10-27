@@ -9,9 +9,12 @@ ipfs:
         Enabled: false
       MDNS:
         Enabled: false
+  EXPERIMENTAL:
+    dht: true
+    pubsub: true
   env:
   - name: "DEBUG"
-    value: "libp2p:pulsarcast*,libp2p:dht*,jsipfs*"
+    value: "libp2p:pulsarcast*,libp2p:dht*,jsipfs*,-jsipfs:trace*"
   readinessProbe:
     initialDelaySeconds: 20
     periodSeconds: 20
@@ -25,3 +28,7 @@ toxiproxy:
   - name: "ipfs_swarm"
     listen: "0.0.0.0:8002"
     upstream: "127.0.0.1:4002"
+ingress:
+  enabled: true
+  class: addon-http-application-routing
+  host: ec58ca9d2c694c0c9111.eastus.aksapp.io
