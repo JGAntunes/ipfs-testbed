@@ -1,5 +1,6 @@
 ---
 esJavaOpts: "-Xmx1g -Xms1g"
+imageTag: 6.8.4
 resources:
   requests:
     memory: 1Gi

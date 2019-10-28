@@ -1,9 +1,9 @@
 ---
-replicaCount: 3
+replicaCount: 1
 
 image:
   repository: docker.elastic.co/logstash/logstash
-  tag: 6.5.4
+  tag: 6.8.4
   pullPolicy: IfNotPresent
 
 elasticsearch:
@@ -32,35 +32,50 @@ readinessProbe:
 
 config:
   xpack.monitoring.enabled: true
-  xpack.monitoring.elasticsearch.url: "http://elasticsearch-master.elastic:9200"
+  xpack.monitoring.elasticsearch.hosts: "http://elasticsearch-master.elastic:9200"
 
 filters:
   main: |-
     filter {
+
+      # Fingerprint events to avoid duplication
+      fingerprint {
+        id => "dedup"
+        concatenate_all_fields => true
+        target => "[@metadata][fingerprint]"
+        method => "SHA1"
+      }
+
       if [beat][name] =~ /^filebeat-.*$/ {
         if [kubernetes][container][name] == "js-ipfs" {
           grok {
+            id => "ipfs-log-parser"
+
             pattern_definitions => {
               "JSON" => "{.*}"
               "MODULE" => "[\w?:]*"
             }   
+
             match => {
               message => [
                 "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message} %{JSON:data}",
                 "%{TIMESTAMP_ISO8601:logdate} %{MODULE:module} %{GREEDYDATA:message}"
               ]   
             }   
+
             overwrite => [ "message" ]
           }
   
           # Set @timestamp using the date in the log message.
           date {
+            id => "timestamp"
             match => [ "logdate", "ISO8601" ]
             remove_field => [ "logdate" ]
           }   
   
           if [data] {
             json {
+              id => "json-parse"
               source => "data"
               target => "data"
             }
@@ -69,3 +84,14 @@ filters:
       }
     }
 
+outputs:
+  main: |-
+    output {
+      elasticsearch {
+        id => "elasticsearch-output"
+        hosts => ["${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}"]
+        manage_template => false
+        document_id => "%{[@metadata][fingerprint]}"
+        index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+      }
+    }

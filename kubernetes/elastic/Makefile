@@ -8,7 +8,6 @@ install:
 		--tiller-namespace elastic \
 		--namespace elastic \
 		-f values.yaml \
-		 --version 6.6.2-alpha1 \
 		--set volumeClaimTemplate.storageClassName="$(STORAGE_CLASS)" \
 		elasticsearch \
 		elastic/elasticsearch

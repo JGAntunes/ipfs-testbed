@@ -1,12 +1,12 @@
 .PHONY: install delete
 
 install:
+	helm repo add elastic https://helm.elastic.co
 	helm upgrade --install \
 		--namespace kube-system \
 		-f values.yaml \
-		--version 1.4.4 \
 		filebeat \
-		stable/filebeat
+		elastic/filebeat
 
 delete:
 	helm delete --purge filebeat

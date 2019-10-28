@@ -1,4 +1,6 @@
 ---
+elasticsearchHosts: "http://elasticsearch-master.elastic:9200"
+imageTag: 6.8.4
 resources:
   requests:
     memory: 200Mi

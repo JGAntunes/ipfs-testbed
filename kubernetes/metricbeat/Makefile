@@ -1,12 +1,12 @@
 .PHONY: install delete
 
 install:
+	helm repo add elastic https://helm.elastic.co
 	helm upgrade --install \
 		--namespace kube-system \
 		-f values.yaml \
-		--version 1.2.1 \
 		metricbeat \
-		stable/metricbeat
+		elastic/metricbeat
 
 delete:
 	helm delete --purge metricbeat

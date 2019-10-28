@@ -1,22 +1,67 @@
 ---
-deployment:
-  modules:
-    kubernetes:
+imageTag: 6.8.4
+metricbeatConfig:
+  kube-state-metrics-metricbeat.yml: |
+    metricbeat.modules:
+    - module: kubernetes
       enabled: true
-      config:
-        - module: kubernetes
-          metricsets:
-            - state_node
-            - state_deployment
-            - state_replicaset
-            - state_pod
-            - state_container
-            # Uncomment this to get k8s events:
-            # - event
-          period: 2m
-          hosts: ["kube-state-metrics:8080"]
-
-  config:
+      metricsets:
+        - state_node
+        - state_deployment
+        - state_replicaset
+        - state_pod
+        - state_container
+        # Uncomment this to get k8s events:
+        # - event
+      period: 2m
+      hosts: ["${KUBE_STATE_METRICS_HOSTS}"]
+      processors:
+      - add_cloud_metadata: ~
+      - add_kubernetes_metadata:
+          in_cluster: true
+      # - drop_event:
+      #     when:
+      #       and:
+      #         - not:
+      #             has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
+      #         - or:
+      #           - equals:
+      #               kubernetes.labels.app: "logstash"
+      #           - equals:
+      #               kubernetes.labels.app: "kibana"
+      #           - equals:
+      #               kubernetes.labels.app: "elasticsearch-master"
+      - rename:
+          fields:
+          - from: "kubernetes.labels.app.kubernetes.io/name"
+            to: "kubernetes.labels.app_kubernetes_io/name"
+          - from: "kubernetes.labels.app.kubernetes.io/instance"
+            to: "kubernetes.labels.app_kubernetes_io/instance"
+          - from: "kubernetes.labels.app.kubernetes.io/managed-by"
+            to: "kubernetes.labels.app_kubernetes_io/managed-by"
+          ignore_missing: true
+      - rename:
+          when:
+            not:
+              has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+          fields:
+            - from: 'kubernetes.labels.app'
+              to: 'kubernetes.labels.app_kubernetes_io/name'
+      - drop_fields:
+          fields:
+          - 'kubernetes.labels.app'
+      # - drop_fields:
+      #     when:
+      #       has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+      #     fields:
+      #     - 'kubernetes.labels.app'
+    output:
+      logstash:
+        enabled: true
+        hosts: ["logstash.elastic:5044"]
+        compression_level: 6
+        pipelining: 2
+        bulk_max_size: 3200
     xpack.monitoring:
       enabled: true
       elasticsearch:
@@ -25,72 +70,61 @@ deployment:
       events: 100000
       flush.min_events: 512
       flush.timeout: 30s
-    processors:
-    - add_cloud_metadata: ~
-    - add_kubernetes_metadata:
-        in_cluster: true
-    # - drop_event:
-    #     when:
-    #       and:
-    #         - not:
-    #             has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
-    #         - or:
-    #           - equals:
-    #               kubernetes.labels.app: "logstash"
-    #           - equals:
-    #               kubernetes.labels.app: "kibana"
-    #           - equals:
-    #               kubernetes.labels.app: "elasticsearch-master"
-    - rename:
-        fields:
-        - from: "kubernetes.labels.app.kubernetes.io/name"
-          to: "kubernetes.labels.app_kubernetes_io/name"
-        - from: "kubernetes.labels.app.kubernetes.io/instance"
-          to: "kubernetes.labels.app_kubernetes_io/instance"
-        - from: "kubernetes.labels.app.kubernetes.io/managed-by"
-          to: "kubernetes.labels.app_kubernetes_io/managed-by"
-        ignore_missing: true
-    - rename:
-        when:
-          not:
-            has_fields: ['kubernetes.labels.app_kubernetes_io/name']
-        fields:
-          - from: 'kubernetes.labels.app'
-            to: 'kubernetes.labels.app_kubernetes_io/name'
-    - drop_fields:
-        fields:
-        - 'kubernetes.labels.app'
-    # - drop_fields:
-    #     when:
-    #       has_fields: ['kubernetes.labels.app_kubernetes_io/name']
-    #     fields:
-    #     - 'kubernetes.labels.app'
-    output:
-      file:
-        enabled: false
-      logstash:
-        enabled: true
-        hosts: ["logstash.elastic:5044"]
-        pipelining: 3
-        bulk_max_size: 100000
-
-daemonset:
-  modules:
-    kubernetes:
+  
+  metricbeat.yml: |
+    metricbeat.modules:
+    - module: kubernetes
       enabled: true
-      config:
-        - module: kubernetes
-          metricsets:
-            - node
-            - system
-            - pod
-            - container
-            - volume
-          period: 2m
-          host: ${NODE_NAME}
-          hosts: ["localhost:10255"]
-
-  config:
+      metricsets:
+        - node
+        - system
+        - pod
+        - container
+        - volume
+      period: 2m
+      host: "${NODE_NAME}"
+      hosts: ["${NODE_NAME}:10255"]
+      processors:
+      - add_cloud_metadata: ~
+      - add_kubernetes_metadata:
+          in_cluster: true
+      # - drop_event:
+      #     when:
+      #       and:
+      #         - not:
+      #             has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
+      #         - or:
+      #           - equals:
+      #               kubernetes.labels.app: "logstash"
+      #           - equals:
+      #               kubernetes.labels.app: "kibana"
+      #           - equals:
+      #               kubernetes.labels.app: "elasticsearch-master"
+      - rename:
+          fields:
+          - from: "kubernetes.labels.app.kubernetes.io/name"
+            to: "kubernetes.labels.app_kubernetes_io/name"
+          - from: "kubernetes.labels.app.kubernetes.io/instance"
+            to: "kubernetes.labels.app_kubernetes_io/instance"
+          - from: "kubernetes.labels.app.kubernetes.io/managed-by"
+            to: "kubernetes.labels.app_kubernetes_io/managed-by"
+          ignore_missing: true
+      - rename:
+          when:
+            not:
+              has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+          fields:
+            - from: 'kubernetes.labels.app'
+              to: 'kubernetes.labels.app_kubernetes_io/name'
+      - drop_fields:
+          fields:
+          - 'kubernetes.labels.app'
+      # - drop_fields:
+      #     when:
+      #       has_fields: ['kubernetes.labels.app_kubernetes_io/name']
+      #     fields:
+      #     - 'kubernetes.labels.app'
+  
     xpack.monitoring:
       enabled: true
       elasticsearch:
@@ -99,51 +133,10 @@ daemonset:
       events: 100000
       flush.min_events: 512
       flush.timeout: 30s
-    processors:
-    - add_cloud_metadata: ~
-    - add_kubernetes_metadata:
-        in_cluster: true
-    # - drop_event:
-    #     when:
-    #       and:
-    #         - not:
-    #             has_fields: ["kubernetes.labels.app.kubernetes.io/name"]
-    #         - or:
-    #           - equals:
-    #               kubernetes.labels.app: "logstash"
-    #           - equals:
-    #               kubernetes.labels.app: "kibana"
-    #           - equals:
-    #               kubernetes.labels.app: "elasticsearch-master"
-    - rename:
-        fields:
-        - from: "kubernetes.labels.app.kubernetes.io/name"
-          to: "kubernetes.labels.app_kubernetes_io/name"
-        - from: "kubernetes.labels.app.kubernetes.io/instance"
-          to: "kubernetes.labels.app_kubernetes_io/instance"
-        - from: "kubernetes.labels.app.kubernetes.io/managed-by"
-          to: "kubernetes.labels.app_kubernetes_io/managed-by"
-        ignore_missing: true
-    - rename:
-        when:
-          not:
-            has_fields: ['kubernetes.labels.app_kubernetes_io/name']
-        fields:
-          - from: 'kubernetes.labels.app'
-            to: 'kubernetes.labels.app_kubernetes_io/name'
-    - drop_fields:
-        fields:
-        - 'kubernetes.labels.app'
-    # - drop_fields:
-    #     when:
-    #       has_fields: ['kubernetes.labels.app_kubernetes_io/name']
-    #     fields:
-    #     - 'kubernetes.labels.app'
     output:
-      file:
-        enabled: false
       logstash:
         enabled: true
         hosts: ["logstash.elastic:5044"]
-        pipelining: 3
-        bulk_max_size: 100000
+        compression_level: 6
+        pipelining: 2
+        bulk_max_size: 3200
