@@ -22,6 +22,11 @@ filebeatConfig:
       - add_cloud_metadata: ~
       - add_kubernetes_metadata:
           in_cluster: true
+      - drop_event:
+          when:
+            not:
+              equals:
+                kubernetes.namespace: "ipfs-testbed"
       # - drop_event:
       #     when:
       #       and:

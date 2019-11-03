@@ -34,19 +34,21 @@ config:
   xpack.monitoring.enabled: true
   xpack.monitoring.elasticsearch.hosts: "http://elasticsearch-master.elastic:9200"
 
+inputs:
+  main: |-
+    input {
+      beats {
+        id => "beats-input"
+        port => 5044
+        client_inactivity_timeout => 150
+      }
+    }
+
 filters:
   main: |-
     filter {
 
-      # Fingerprint events to avoid duplication
-      fingerprint {
-        id => "dedup"
-        concatenate_all_fields => true
-        target => "[@metadata][fingerprint]"
-        method => "SHA1"
-      }
-
-      if [beat][name] =~ /^filebeat-.*$/ {
+      if [@metadata][beat] == "filebeat" {
         if [kubernetes][container][name] == "js-ipfs" {
           grok {
             id => "ipfs-log-parser"
@@ -79,6 +81,92 @@ filters:
               source => "data"
               target => "data"
             }
+          }
+        }
+
+        # Fingerprint events to avoid duplication
+        fingerprint {
+          id => "dedup-filebeat"
+          concatenate_all_fields => true
+          target => "[@metadata][fingerprint]"
+          method => "SHA1"
+        }
+      }
+
+      if [@metadata][beat] == "metricbeat" {
+
+        # Fingerprint events to avoid duplication
+        if [metricset][name] == "state_deployment" {
+          fingerprint {
+            id => "dedup-state-deployment"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][deployment][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "state_pod" {
+          fingerprint {
+            id => "dedup-state-pod"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][pod][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "state_container" {
+          fingerprint {
+            id => "dedup-state-container"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][pod][name]", "[kubernetes][container][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "state_node" {
+          fingerprint {
+            id => "dedup-state-node"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][node][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "node" {
+          fingerprint {
+            id => "dedup-node"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][node][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "pod" {
+          fingerprint {
+            id => "dedup-pod"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][pod][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "container" {
+          fingerprint {
+            id => "dedup-container"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][pod][name]", "[kubernetes][container][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "system" {
+          fingerprint {
+            id => "dedup-system"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][node][name]", "[kubernetes][system][container]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
+          }
+        } else if [metricset][name] == "volume" {
+          fingerprint {
+            id => "dedup-volume"
+            concatenate_sources => true
+            source => ["@timestamp", "[metricset][name]", "[kubernetes][pod][name]", "[kubernetes][volume][name]" ]
+            target => "[@metadata][fingerprint]"
+            method => "SHA1"
           }
         }
       }

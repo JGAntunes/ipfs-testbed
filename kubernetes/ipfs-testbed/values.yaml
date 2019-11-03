@@ -14,7 +14,7 @@ ipfs:
     pubsub: true
   env:
   - name: "DEBUG"
-    value: "libp2p:pulsarcast*,jsipfs*,-jsipfs:trace*"
+    value: "libp2p:pulsarcast*,jsipfs*,floodsub:test*,-jsipfs:trace*"
   readinessProbe:
     initialDelaySeconds: 20
     periodSeconds: 20

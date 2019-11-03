@@ -60,15 +60,16 @@ metricbeatConfig:
         enabled: true
         hosts: ["logstash.elastic:5044"]
         compression_level: 6
+        timeout: 2m
         pipelining: 2
-        bulk_max_size: 3200
+        bulk_max_size: 1000
     xpack.monitoring:
       enabled: true
       elasticsearch:
         hosts: ["http://elasticsearch-master.elastic:9200"]
     queue.mem:
-      events: 100000
-      flush.min_events: 512
+      # events: 100000
+      # flush.min_events: 512
       flush.timeout: 30s
   
   metricbeat.yml: |
@@ -130,13 +131,14 @@ metricbeatConfig:
       elasticsearch:
         hosts: ["http://elasticsearch-master.elastic:9200"]
     queue.mem:
-      events: 100000
-      flush.min_events: 512
+      # events: 100000
+      # flush.min_events: 512
       flush.timeout: 30s
     output:
       logstash:
         enabled: true
         hosts: ["logstash.elastic:5044"]
+        timeout: 2m
         compression_level: 6
         pipelining: 2
-        bulk_max_size: 3200
+        bulk_max_size: 1000
