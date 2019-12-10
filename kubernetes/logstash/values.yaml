@@ -30,7 +30,20 @@ readinessProbe:
   failureThreshold: 6
   successThreshold: 1
 
+logstashJavaOpts: "-Xmx1g -Xms1g"
+resources:
+  requests:
+    memory: 1Gi
+  limits:
+    memory: 2Gi
+
 config:
+  # queue.checkpoint.writes: 1
+  # queue.drain: "true"
+  # queue.max_bytes: 1gb  # disk capacity must be greater than the value of `queue.max_bytes`
+  queue.type: memory
+  pipeline.workers: 2
+  pipeline.batch.size: 125
   xpack.monitoring.enabled: true
   xpack.monitoring.elasticsearch.hosts: "http://elasticsearch-master.elastic:9200"
 
@@ -175,6 +188,9 @@ filters:
 outputs:
   main: |-
     output {
+      # file {
+      #   path => "/usr/share/logstash/dump-stuff"
+      # }
       elasticsearch {
         id => "elasticsearch-output"
         hosts => ["${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}"]

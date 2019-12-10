@@ -5,7 +5,7 @@ install:
 		--tiller-namespace elastic \
 		--namespace elastic \
 		-f values.yaml \
-		--version 1.5.3 \
+		--version 1.8.0 \
 		logstash \
 		stable/logstash
 

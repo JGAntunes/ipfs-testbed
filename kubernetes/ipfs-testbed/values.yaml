@@ -15,14 +15,22 @@ ipfs:
   env:
   - name: "DEBUG"
     value: "libp2p:pulsarcast*,jsipfs*,floodsub:test*,-jsipfs:trace*"
+  resources:
+    limits:
+      # cpu: 5m
+      memory: 512Mi
+    requests:
+      # cpu: 120m
+      memory: 512Mi
+
   readinessProbe:
-    initialDelaySeconds: 20
-    periodSeconds: 20
-    timeoutSeconds: 20
+    initialDelaySeconds: 30
+    periodSeconds: 120
+    timeoutSeconds: 120
   livenessProbe:
-    initialDelaySeconds: 20
-    periodSeconds: 20
-    timeoutSeconds: 20
+    initialDelaySeconds: 30
+    periodSeconds: 180
+    timeoutSeconds: 180
 toxiproxy:
   config:
   - name: "ipfs_swarm"

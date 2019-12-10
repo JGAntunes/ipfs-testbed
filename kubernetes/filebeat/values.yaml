@@ -6,18 +6,27 @@ filebeatConfig:
       enabled: true
       elasticsearch:
         hosts: ["http://elasticsearch-master.elastic:9200"]
+    # queue.mem:
+    #   events: 12800
+    #   flush.min_events: 3200
+      # flush.timeout: 30s
     output:
-      file:
-        enabled: false
+      # file:
+      #   enabled: true
+      #   path: "/tmp/filebeat"
+      #   filename: filebeat
       logstash:
         hosts: ["logstash.elastic:5044"]
-        compression_level: 6
-        pipelining: 2
-        bulk_max_size: 3200
+        # compression_level: 9
+        # pipelining: 4
+        # loadbalance: true
+        # worker: 4
+        # bulk_max_size: 3200
     filebeat.inputs:
     - type: docker
       containers.ids:
       - '*'
+      scan_frequency: '1s'
       processors:
       - add_cloud_metadata: ~
       - add_kubernetes_metadata:

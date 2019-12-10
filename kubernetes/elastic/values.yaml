@@ -1,12 +1,12 @@
 ---
-esJavaOpts: "-Xmx1g -Xms1g"
+esJavaOpts: "-Xmx2g -Xms2g"
 imageTag: 6.8.4
 resources:
   requests:
-    memory: 1Gi
+    memory: 2Gi
     cpu: 100m
   limits:
-    memory: 2Gi
+    memory: 4Gi
     cpu: 1000m
 
 clusterHealthCheckParams: "wait_for_status=yellow&timeout=5s"
