@@ -16,12 +16,12 @@ ipfs:
   - name: "DEBUG"
     value: "libp2p:pulsarcast*,jsipfs*,floodsub:test*,-jsipfs:trace*"
   resources:
-    limits:
-      # cpu: 5m
-      memory: 512Mi
     requests:
       # cpu: 120m
-      memory: 512Mi
+      memory: 440Mi
+    limits:
+      # cpu: 5m
+      memory: 500Mi
 
   readinessProbe:
     initialDelaySeconds: 30
@@ -29,8 +29,9 @@ ipfs:
     timeoutSeconds: 120
   livenessProbe:
     initialDelaySeconds: 30
-    periodSeconds: 180
-    timeoutSeconds: 180
+    periodSeconds: 360
+    timeoutSeconds: 360
+    failureThreshold: 5
 toxiproxy:
   config:
   - name: "ipfs_swarm"
@@ -39,4 +40,4 @@ toxiproxy:
 ingress:
   enabled: true
   class: addon-http-application-routing
-  host: ec58ca9d2c694c0c9111.eastus.aksapp.io
+  host: 69dde62167f44c4692c0.eastus.aksapp.io

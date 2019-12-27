@@ -6,7 +6,7 @@ resources:
     memory: 2Gi
     cpu: 100m
   limits:
-    memory: 4Gi
+    memory: 3Gi
     cpu: 1000m
 
 clusterHealthCheckParams: "wait_for_status=yellow&timeout=5s"

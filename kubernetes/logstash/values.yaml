@@ -35,7 +35,7 @@ resources:
   requests:
     memory: 1Gi
   limits:
-    memory: 2Gi
+    memory: 1.3Gi
 
 config:
   # queue.checkpoint.writes: 1
